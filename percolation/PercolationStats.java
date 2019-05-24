@@ -1,73 +1,88 @@
 /* *****************************************************************************
  *  Name: Yinchi Luo
- *  Date: 2019/05/23
+ *  Date: 2019/05/24
  *  Description: percolation assignment for algorithms course by princeton
  **************************************************************************** */
 
+import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
 
 public class PercolationStats {
-    public PercolationStats(int n, int trials)    // perform trials independent experiments on an n-by-n grid
 
-    public double mean()                          // sample mean of percolation threshold
-
-    public double stddev()                        // sample standard deviation of percolation threshold
-
-    public double confidenceLo()                  // low  endpoint of 95% confidence interval
-
-    public double confidenceHi()                  // high endpoint of 95% confidence interval
-
-    public static void main(String[] args)        // test client (described below)
-
-    private int trials;
+    private int trialTimes;
     private int gridLen;
     private double[] fractionsOpenSites;
-    private double stat_mean;
-    private double stat_stddev;
-    private double stat_confidenceLo;
-    private double stat_confidenceHi;
+    private double statMean;
+    private double statStddev;
+    private double statConfidenceLo;
+    private double statConfidenceHi;
+    private int[] closedSites;
 
     public PercolationStats(int n, int trials) {
-        trials = trials;
+        trialTimes = trials;
         gridLen = n;
         fractionsOpenSites = new double[trials];
+        initClosedSites();
         calcStats();
     }
 
     public double mean() {
-        return stat_mean;
+        return statMean;
     }
 
     public double stddev() {
-        return stat_stddev;
+        return statStddev;
     }
 
     public double confidenceLo() {
-        return stat_confidenceLo;
+        return statConfidenceLo;
     }
 
     public double confidenceHi() {
-        return stat_confidenceHi;
+        return statConfidenceHi;
     }
 
     public static void main(String[] args) {
-        PercolationStats pStats = new PercolationStats(args[0], args[1]);
-        mean = 0.5929934999999997
-        stddev = 0.00876990421552567
-        95 % confidence interval = [0.5912745987737567, 0.5947124012262428]
+        int n = Integer.parseInt(args[0]);
+        int T = Integer.parseInt(args[1]);
+        PercolationStats pStats = new PercolationStats(n, T);
+        StdOut.printf("mean                    = %f\n", pStats.mean());
+        StdOut.printf("stddev                  = %f\n", pStats.stddev());
+        StdOut.printf("95%% confidence interval = [%f, %f]\n", pStats.confidenceLo(),
+                      pStats.confidenceHi());
 
     }
 
-    private void calcStats() {
-        for (int i = 0; i < trials; i++) {
-            fractionsOpenSites[i] = simulate();
+    private void initClosedSites() {
+        closedSites = new int[gridLen * gridLen];
+        for (int i = 0; i < gridLen * gridLen; i++) {
+            closedSites[i] = i + 1;
         }
-        stat_mean = calcMean();
-        stat_stddev = calcStddev();
-        stat_confidenceLo = calcConfidenceLow95();
-        stat_confidenceHi = calcConfidenceHigh95();
+    }
+
+    private int[] indexToRowCol(int index) {
+        int row = (index - 1) / gridLen + 1;
+        int col = index % gridLen;
+        if (col == 0) {
+            col = gridLen;
+        }
+        int[] result = new int[] { row, col };
+        return result;
+    }
+
+    private void calcStats() {
+        for (int i = 0; i < trialTimes; i++) {
+            //StdOut.printf("Simulate %d start\n", i);
+            fractionsOpenSites[i] = simulate();
+            //StdOut.printf("Simulate %d ended, fraction: %f\n", i, fractionsOpenSites[i]);
+
+        }
+        statMean = calcMean();
+        statStddev = calcStddev();
+        statConfidenceLo = calcConfidenceLow95();
+        statConfidenceHi = calcConfidenceHigh95();
     }
 
     private double calcMean() {
@@ -79,22 +94,34 @@ public class PercolationStats {
     }
 
     private double calcConfidenceLow95() {
-        return stat_mean - 1.96 * s / Math.sqrt(trials);
+        return statMean - 1.96 * statStddev / Math.sqrt(trialTimes);
     }
 
     private double calcConfidenceHigh95() {
-        return stat_mean + 1.96 * s / Math.sqrt(trials);
+        return statMean + 1.96 * statStddev / Math.sqrt(trialTimes);
     }
 
+
     private double simulate() {
-        Percolation p = new (PercolationStats(gridLen));
-        while (!p.percolates) {
-            int rowSiteToOpen = StdRandom.uniform(1, gridLen);
-            int colSiteToOpen = StdRandom.uniform(1, gridLen);
-            p.open(rowSiteToOpen, colSiteToOpen);
+        Percolation p = new Percolation(gridLen);
+
+        StdRandom.shuffle(closedSites);
+
+
+        for (int i = 0; i < gridLen * gridLen; i++) {
+            if (p.percolates()) {
+                break;
+            }
+            else {
+                int indexSiteToOpen = closedSites[i];
+                int[] rowCol = indexToRowCol(indexSiteToOpen);
+                int rowSiteToOpen = rowCol[0];
+                int colSiteToOpen = rowCol[1];
+                p.open(rowSiteToOpen, colSiteToOpen);
+            }
         }
         int numOpen = p.numberOfOpenSites();
-        return double(numOpen) /double(gridLen * gridLen);
+        return (double) numOpen / (double) (gridLen * gridLen);
     }
 
 }
