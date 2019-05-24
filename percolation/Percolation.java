@@ -1,14 +1,11 @@
 /* *****************************************************************************
- *  Name:
- *  Date:
- *  Description:
+ *  Name: Yinchi Luo
+ *  Date: 2019/05/23
+ *  Description: percolation assignment for algorithms course by princeton
  **************************************************************************** */
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
-
-//import edu.princeton.cs.algs4.StdRandom;
-//import edu.princeton.cs.algs4.StdStats;
 
 public class Percolation {
     private WeightedQuickUnionUF sites;
