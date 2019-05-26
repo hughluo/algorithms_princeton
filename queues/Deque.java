@@ -1,5 +1,7 @@
 import java.util.Iterator;
 import edu.princeton.cs.algs4.StdOut;
+import java.lang.IllegalArgumentException;
+import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
     private Node sentinel;
@@ -17,6 +19,7 @@ public class Deque<Item> implements Iterable<Item> {
         return size;
     }
     public void addFirst(Item item) {
+        if (item == null) throw new IllegalArgumentException("Argument can not be null");
         if (isEmpty()) {
             addVeryFirstNode(item);
         } else {
@@ -31,6 +34,7 @@ public class Deque<Item> implements Iterable<Item> {
         }
     }
     public void addLast(Item item) {
+        if (item == null) throw new IllegalArgumentException("Argument can not be null");
         if (isEmpty()) {
             addVeryFirstNode(item);
         } else {
@@ -92,6 +96,7 @@ public class Deque<Item> implements Iterable<Item> {
 
         @Override
         public Item next() {
+            if (!hasNext()) throw new NoSuchElementException();
             Item item = current.item;
             current = current.next;
             return item;

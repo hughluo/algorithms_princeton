@@ -1,5 +1,6 @@
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.lang.IllegalArgumentException;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 
@@ -24,6 +25,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         return len;
     }                 
     public void enqueue(Item item) {
+        if (item == null) throw new IllegalArgumentException("Argument can not be null");
         if (len == arrayQueue.length) resize(2*arrayQueue.length);    // double size of array if necessary
         arrayQueue[len++] = item;
     }          
