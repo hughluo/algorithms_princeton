@@ -13,31 +13,48 @@ import java.util.Arrays;
 
 public class FastCollinearPoints {
     private ArrayList<LineSegment> s;
+    private Point[] p;
+    private ArrayList<Line> lines;
+
+    private class Line {
+        public final double k;
+        public final double b;
+
+        public Line(double slope, double intercept) {
+            k = slope;
+            b = intercept;
+        }
+    }
+
 
     public FastCollinearPoints(Point[] points) {
         s = new ArrayList<>(2);
-        if (points == null)
-            throw new IllegalArgumentException("FATAL: input points array is null!");
-        Arrays.sort(points);
-        for (int i = 0; i < points.length; i++) {
-            if (points[i] == null)
-                throw new IllegalArgumentException("FATAL: null point detected!");
-            Point origin = points[i];
-            Arrays.sort(points, i + 1, points.length, origin.slopeOrder());
+        p = points.clone();
+        Arrays.sort(p);
+        for (int i = 0; i < p.length; i++) {
+            Arrays.sort(p, i, p.length);
+            Point origin = p[i];
+            Arrays.sort(p, i, p.length, origin.slopeOrder());
             int counter;
-            for (int j = i + 1; j < points.length; j = j + counter + 1) {
+
+            for (int j = i + 1; j < p.length; j = j + counter + 1) {
+                if (origin.slopeTo(p[j]) == Double.NEGATIVE_INFINITY) {
+                    throw new IllegalArgumentException("repeated point!");
+                }
                 counter = 0;
-                for (int k = j + 1; k < points.length; k++) {
-                    if (origin.slopeTo(points[j]) == origin.slopeTo(points[k])) {
+                for (int k = j + 1; k < p.length; k++) {
+                    if (origin.slopeTo(p[j]) == origin.slopeTo(p[k])) {
                         counter++;
-                        if (counter >= 2 && k == points.length - 1) {
-                            Arrays.sort(points, j, points.length);
-                            int compareResult = origin.compareTo(points[j]);
+                        if (counter == 2) {
+                            Arrays.sort(p, j, j + 2);
+                            int compareResult = origin.compareTo(p[j]);
                             if (compareResult > 0) {
-                                s.add(new LineSegment(points[j], points[k]));
+                                s.add(new LineSegment(p[j], p[k]));
+                                break;
                             }
                             else if (compareResult < 0) {
-                                s.add(new LineSegment(origin, points[k]));
+                                s.add(new LineSegment(origin, p[k]));
+                                break;
                             }
                             else {
                                 throw new IllegalArgumentException(
@@ -46,20 +63,6 @@ public class FastCollinearPoints {
                         }
                     }
                     else {
-                        if (counter >= 2) {
-                            Arrays.sort(points, j, k);
-                            int compareResult = origin.compareTo(points[j]);
-                            if (compareResult > 0) {
-                                s.add(new LineSegment(points[j], points[k - 1]));
-                            }
-                            else if (compareResult < 0) {
-                                s.add(new LineSegment(origin, points[k - 1]));
-                            }
-                            else {
-                                throw new IllegalArgumentException(
-                                        "FATAL: repeated points detected!");
-                            }
-                        }
                         break;
                     }
                 }

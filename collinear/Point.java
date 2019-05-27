@@ -1,4 +1,4 @@
-/*****************************************************************************
+/******************************************************************************
  *  Compilation:  javac Point.java
  *  Execution:    java Point
  *  Dependencies: none
@@ -10,6 +10,7 @@
 
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -123,25 +124,37 @@ public class Point implements Comparable<Point> {
     public static void main(String[] args) {
         /* YOUR CODE HERE */
         Point[] points = new Point[6];
-        points[0] = new Point(10, 10);
+        points[0] = new Point(0, 5);
         points[1] = new Point(5, 10);
-        points[2] = new Point(5, 5);
-        points[3] = new Point(5, 10);
+        points[2] = new Point(20, 25);
+        points[3] = new Point(25, 30);
         points[4] = new Point(10, 5);
-        points[5] = new Point(0, 0);
+        points[5] = new Point(15, 20);
+        StdRandom.shuffle(points);
+
         for (int i = 0; i < 6; i++) StdOut.println(points[i].toString());
-        StdOut.println(points[1].slopeTo(points[0]));
-        StdOut.println(points[1].slopeTo(points[1]));
-        StdOut.println(points[1].slopeTo(points[2]));
-        StdOut.println(points[1].slopeTo(points[3]));
-        StdOut.println(points[1].slopeTo(points[4]));
-        StdOut.println(points[1].slopeTo(points[5]));
-        Arrays.sort(points, points[1].slopeOrder());
-        StdOut.println("-----slope sorted-----");
-        for (int i = 0; i < 6; i++) StdOut.println(points[i].toString());
+        StdOut.println("-----shuffled-----");
+
         Arrays.sort(points);
-        StdOut.println("-----point sorted-----");
         for (int i = 0; i < 6; i++) StdOut.println(points[i].toString());
+        StdOut.println("-----point sorted-----");
+
+        Point origin = new Point(0, 5);
+        Arrays.sort(points, origin.slopeOrder());
+        for (int i = 0; i < 6; i++) StdOut.println(points[i].toString());
+        StdOut.println("-----slope sorted 0-----");
+
+
+        Point originI = new Point(10, 5);
+        Arrays.sort(points, originI.slopeOrder());
+        for (int i = 0; i < 6; i++) StdOut.println(points[i].toString());
+        StdOut.println("-----slope sorted Inter-----");
+
+
+        Point origin2 = new Point(5, 10);
+        Arrays.sort(points, origin.slopeOrder());
+        for (int i = 0; i < 6; i++) StdOut.println(points[i].toString());
+        StdOut.println("-----slope sorted 1-----");
 
     }
 }
