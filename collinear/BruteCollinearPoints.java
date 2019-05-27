@@ -6,34 +6,41 @@
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.lang.IllegalArgumentException;
+import java.lang.NullPointerException;
 
 public class BruteCollinearPoints {
     private ArrayList<LineSegment> s;
+    private Point[] p;
     //  private LineSegment[] lineSegments;
 
     public BruteCollinearPoints(Point[] points) {
         s = new ArrayList<>(2);
+        p = points.clone();
         try {
-            if (points == null)
+            if (p == null)
                 throw new IllegalArgumentException("FATAL: input points array is null!");
         }
         catch (NullPointerException e) {
             throw new IllegalArgumentException("FATAL: input points array is null!");
         }
-        for (int h = 0; h < points.length; h++) {
-            for (int i = h + 1; i < points.length; i++) {
-                for (int j = i + 1; j < points.length; j++) {
-                    for (int k = j + 1; k < points.length; k++) {
-                        if (points[h] == null || points[i] == null || points[j] == null
-                                || points[k] == null) {
+        for (int h = 0; h < p.length; h++) {
+            for (int i = h + 1; i < p.length; i++) {
+                for (int j = i + 1; j < p.length; j++) {
+                    for (int k = j + 1; k < p.length; k++) {
+                        if (p[h].compareTo(p[i]) == 0 || p[h].compareTo(p[j]) == 0
+                                || p[h].compareTo(p[k]) == 0) {
+                            throw new IllegalArgumentException("FATAL: duplicate points detected!");
+                        }
+
+                        if (p[h] == null || p[i] == null || p[j] == null || p[k] == null) {
                             throw new IllegalArgumentException("FATAL: null point detected!");
                         }
                         double slopeHI, slopeHJ, slopeHK;
                         try {
-                            slopeHI = points[h].slopeTo(points[i]);
-                            slopeHJ = points[h].slopeTo(points[j]);
-                            slopeHK = points[h].slopeTo(points[k]);
+                            slopeHI = p[h].slopeTo(p[i]);
+                            slopeHJ = p[h].slopeTo(p[j]);
+                            slopeHK = p[h].slopeTo(p[k]);
                         }
                         catch (NullPointerException e) {
                             throw new IllegalArgumentException("FATAL: null point detected!");
@@ -42,15 +49,15 @@ public class BruteCollinearPoints {
                         if (slopeHI == Double.NEGATIVE_INFINITY
                                 || slopeHJ == Double.NEGATIVE_INFINITY
                                 || slopeHK == Double.NEGATIVE_INFINITY) {
-                            throw new IllegalArgumentException("FATAL: repeated points detected!");
+                            throw new IllegalArgumentException("FATAL: duplicate points detected!");
                         }
 
                         if (slopeHI == slopeHJ && slopeHI == slopeHK) {
                             Point[] arr = new Point[4];
-                            arr[0] = points[h];
-                            arr[1] = points[i];
-                            arr[2] = points[j];
-                            arr[3] = points[k];
+                            arr[0] = p[h];
+                            arr[1] = p[i];
+                            arr[2] = p[j];
+                            arr[3] = p[k];
                             Arrays.sort(arr);
                             s.add(new LineSegment(arr[0], arr[3]));
                         }
