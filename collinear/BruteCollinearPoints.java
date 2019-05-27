@@ -1,7 +1,7 @@
 /* *****************************************************************************
- *  Name:
- *  Date:
- *  Description:
+ *  Name: Yinchi Luo
+ *  Date: 2019/05/26
+ *  Description: collinear assignment
  **************************************************************************** */
 
 import edu.princeton.cs.algs4.In;

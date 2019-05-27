@@ -1,4 +1,4 @@
-/******************************************************************************
+/*****************************************************************************
  *  Compilation:  javac Point.java
  *  Execution:    java Point
  *  Dependencies: none
@@ -97,7 +97,11 @@ public class Point implements Comparable<Point> {
 
     private class SlopeOrder implements Comparator<Point> {
         public int compare(Point p1, Point p2) {
-            return p1.compareTo(p2);
+            double s1 = slopeTo(p1);
+            double s2 = slopeTo(p2);
+            if (s1 == s2) return 0;
+            else if (s1 > s2) return 1;
+            else return -1;
         }
     }
 
@@ -132,8 +136,12 @@ public class Point implements Comparable<Point> {
         StdOut.println(points[1].slopeTo(points[3]));
         StdOut.println(points[1].slopeTo(points[4]));
         StdOut.println(points[1].slopeTo(points[5]));
-        Arrays.sort(points);
-        StdOut.println("----------");
+        Arrays.sort(points, points[1].slopeOrder());
+        StdOut.println("-----slope sorted-----");
         for (int i = 0; i < 6; i++) StdOut.println(points[i].toString());
+        Arrays.sort(points);
+        StdOut.println("-----point sorted-----");
+        for (int i = 0; i < 6; i++) StdOut.println(points[i].toString());
+
     }
 }
