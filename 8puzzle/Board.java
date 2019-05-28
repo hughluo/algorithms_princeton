@@ -102,7 +102,7 @@ public class Board {
                 }
             }
         }
-        return score + move;
+        return score;
     }
 
     private int calcManhattan() {
@@ -121,7 +121,7 @@ public class Board {
                 }
             }
         }
-        return score + move;
+        return score;
     }
 
 
