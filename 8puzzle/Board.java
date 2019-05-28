@@ -1,10 +1,10 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Stack;
+import edu.princeton.cs.algs4.StdOut;
 
 public class Board {
     private int gridLen;
     private int[][] grid;
-    private int[][] goal;
     private int zeroi;
     private int zeroj;
     private int hamming;
@@ -14,7 +14,6 @@ public class Board {
     public Board(int[][] blocks) {
         grid = blocks;
         gridLen = grid[0].length;
-        goal = calcGoal();
         findZero();
         hamming = calcHamming();
         manhattan = calcManhattan();
@@ -33,7 +32,7 @@ public class Board {
     }
 
     public boolean isGoal() {
-        return equalsGrid(grid, goal);
+        return equalsGrid(grid, calcGoal());
     }
 
     public Board twin() {
@@ -42,28 +41,38 @@ public class Board {
             twinGrid[i] = grid[i].clone();
         }
         int count = 0;
+        int ai = 0;
         int aj = 0;
+        int bi = 0;
         int bj = 0;
 
-        for (int j = 0; j < gridLen; j++) {
-            if (count == 2) break;
-            else if (count == 0) {
-                if (twinGrid[0][j] != 0) {
-                    aj = j;
-                    count++;
-                }
-            }
-            else if (count == 1) {
-                if (twinGrid[0][j] != 0) {
-                    bj = j;
-                    count++;
+        for (int i = 0; i < gridLen; i++) {
+            for (int j = 0; j < gridLen; j++) {
+                if (twinGrid[i][j] != 0) {
+                    if (count == 0) {
+                        ai = i;
+                        aj = j;
+                        count++;
+                    }
+                    else if (count == 1) {
+                        if (i != ai && j != aj) {
+                            ai = i;
+                            aj = j;
+                        }
+                        else {
+                            bi = i;
+                            bj = j;
+                            break;
+                        }
+
+                    }
                 }
             }
         }
 
-        int tmp = twinGrid[0][aj];
-        twinGrid[0][aj] = twinGrid[0][bj];
-        twinGrid[0][bj] = tmp;
+        int tmp = twinGrid[ai][aj];
+        twinGrid[ai][aj] = twinGrid[bi][bj];
+        twinGrid[bi][bj] = tmp;
 
         Board twin = new Board(twinGrid);
         return twin;
@@ -138,11 +147,13 @@ public class Board {
 
         // StdOut.println(initial);
         // StdOut.println("----Neighbours----");
-        Iterable<Board> nbs = initial.neighbors();
-        for (Board nb : nbs) {
-            // StdOut.println(nb);
-            // StdOut.println("---nb---");
-        }
+        // Iterable<Board> nbs = initial.neighbors();
+        // for (Board nb : nbs) {
+        // StdOut.println(nb);
+        // StdOut.println("---nb---");
+        // }
+        StdOut.println(initial);
+        StdOut.println(initial.twin());
     }
 
     private void findZero() {
@@ -175,7 +186,7 @@ public class Board {
 
     private int[] shouldBe(int num) {
         int row = (num - 1) / gridLen;
-        int col = num - (row + 1) * gridLen - 1;
+        int col = (num - 1) % gridLen;
         int[] r = { row, col };
         return r;
     }
