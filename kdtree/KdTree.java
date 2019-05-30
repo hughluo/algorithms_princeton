@@ -1,7 +1,7 @@
 
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
-import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdDraw;
 
 import java.util.ArrayList;
 
@@ -32,7 +32,7 @@ public class KdTree {
         if (!isEmpty() && contains(p)) return;
 
         if (size == 0) {
-            root = new Node(p, false);
+            root = new Node(p, true);
             size++;
         }
         else {
@@ -45,34 +45,34 @@ public class KdTree {
         if (!current.isXKey) { // y as key
             if (p.y() < current.py()) {
                 if (current.getLB() == null) {
-                    Node n = new Node(p, false);
+                    Node n = new Node(p, true);
                     current.setLB(n);
                 }
                 else insertRecursive(current.getLB(), p);
             }
             else {
-                if (current.getRt() == null) {
-                    Node n = new Node(p, false);
+                if (current.getRT() == null) {
+                    Node n = new Node(p, true);
                     current.setRT(n);
                 }
-                else insertRecursive(current.getRt(), p);
+                else insertRecursive(current.getRT(), p);
             }
 
         }
         else { //  x as key
             if (p.x() < current.px()) {
                 if (current.getLB() == null) {
-                    Node n = new Node(p, true);
+                    Node n = new Node(p, false);
                     current.setLB(n);
                 }
                 else insertRecursive(current.getLB(), p);
             }
             else {
-                if (current.getRt() == null) {
-                    Node n = new Node(p, true);
+                if (current.getRT() == null) {
+                    Node n = new Node(p, false);
                     current.setRT(n);
                 }
-                else insertRecursive(current.getRt(), p);
+                else insertRecursive(current.getRT(), p);
             }
         }
     }
@@ -97,7 +97,7 @@ public class KdTree {
             }
             else {
                 if (p.y() == current.py() && p.x() == current.px()) return true;
-                else return searchRecursive(current.getRt(), p);
+                else return searchRecursive(current.getRT(), p);
             }
 
         }
@@ -107,16 +107,55 @@ public class KdTree {
             }
             else {
                 if (p.y() == current.py() && p.x() == current.px()) return true;
-                else return searchRecursive(current.getRt(), p);
+                else return searchRecursive(current.getRT(), p);
             }
         }
-        
+
     }
 
 
     // draw all points to standard draw
     public void draw() {
+        //
+        drawPoint();
+        drawLine();
 
+    }
+
+    private void drawPoint() {
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.setPenRadius(0.01);
+        drawPointRecursive(root);
+    }
+
+
+    private void drawPointRecursive(Node current) {
+        if (current == null) return;
+        StdDraw.point(current.px(), current.py());
+        drawPointRecursive(current.getLB());
+        drawPointRecursive(current.getRT());
+    }
+
+    private void drawLine() {
+        StdDraw.setPenRadius();
+        drawLineRecursive(root, 0.0, 1.0, 0.0, 1.0);
+    }
+
+    private void drawLineRecursive(Node current, double xLo, double xHi, double yLo, double yHi) {
+        if (current == null) return;
+        if (current.isXKey) {
+            StdDraw.setPenColor(StdDraw.RED);
+            StdDraw.line(current.px(), yLo, current.px(), yHi);
+            drawLineRecursive(current.getLB(), xLo, current.px(), yLo, yHi);
+            drawLineRecursive(current.getRT(), current.px(), xHi, yLo, yHi);
+
+        }
+        else {
+            StdDraw.setPenColor(StdDraw.BLUE);
+            StdDraw.line(xLo, current.py(), xHi, current.py());
+            drawLineRecursive(current.getLB(), xLo, xHi, yLo, current.py());
+            drawLineRecursive(current.getRT(), xLo, xHi, current.py(), yHi);
+        }
     }
 
     // all points that are inside the rectangle (or on the boundary)
@@ -144,14 +183,16 @@ public class KdTree {
         kdt.insert(new Point2D(0.2, 0.3));
         kdt.insert(new Point2D(0.4, 0.7));
         kdt.insert(new Point2D(0.9, 0.6));
+        kdt.draw();
+        //
+        // StdOut.println(kdt.size);
+        // StdOut.println(kdt.contains(new Point2D(0.7, 0.2)));
+        // StdOut.println(kdt.contains(new Point2D(0.5, 0.4)));
+        // StdOut.println(kdt.contains(new Point2D(0.2, 0.3)));
+        // StdOut.println(kdt.contains(new Point2D(0.4, 0.7)));
+        // StdOut.println(kdt.contains(new Point2D(0.9, 0.6)));
+        // StdOut.println(kdt.contains(new Point2D(0.7, 0.7)));
 
-        StdOut.println(kdt.size);
-        StdOut.println(kdt.contains(new Point2D(0.7, 0.2)));
-        StdOut.println(kdt.contains(new Point2D(0.5, 0.4)));
-        StdOut.println(kdt.contains(new Point2D(0.2, 0.3)));
-        StdOut.println(kdt.contains(new Point2D(0.4, 0.7)));
-        StdOut.println(kdt.contains(new Point2D(0.9, 0.6)));
-        StdOut.println(kdt.contains(new Point2D(0.7, 0.7)));
 
     }
 
@@ -201,7 +242,7 @@ public class KdTree {
             return lb;
         }
 
-        public Node getRt() {
+        public Node getRT() {
             return rt;
         }
     }
