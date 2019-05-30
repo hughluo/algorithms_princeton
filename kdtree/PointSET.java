@@ -56,12 +56,20 @@ public class PointSET {
     public Point2D nearest(Point2D p) {
         if (p == null) throw new IllegalArgumentException("Point to nearest is null");
         if (isEmpty()) return null;
-        Point2D result = new Point2D(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
-        for (Point2D pt : pts) if (p.distanceTo(pt) < p.distanceTo(result)) result = pt;
+        double min = Double.POSITIVE_INFINITY;
+        Point2D result = new Point2D(0, 0);
+        for (Point2D pt : pts) {
+            double current = p.distanceSquaredTo(pt);
+            if (current < min) {
+                result = pt;
+                min = current;
+            }
+        }
         return result;
     }
 
     // unit testing of the methods (optional)
     public static void main(String[] args) {
+        // optional
     }
 }

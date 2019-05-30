@@ -1,8 +1,8 @@
-
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
 
@@ -124,7 +124,7 @@ public class KdTree {
     public void draw() {
         //
         drawPoint();
-        drawLine();
+        //drawLine();
 
     }
 
@@ -139,7 +139,7 @@ public class KdTree {
         if (current == null) return;
         StdDraw.point(current.px(), current.py());
         //  draw rect
-        current.getRect().draw();
+        //current.getRect().draw();
         drawPointRecursive(current.getLB());
         drawPointRecursive(current.getRT());
     }
@@ -191,9 +191,28 @@ public class KdTree {
     public Point2D nearest(Point2D p) {
         if (p == null) throw new IllegalArgumentException("Point to nearest is null");
         if (isEmpty()) return null;
-        Point2D result = new Point2D(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
-        //  for (Point2D pt : pts) if (p.distanceTo(pt) < p.distanceTo(result)) result = pt;
-        return result;
+        return nearestRecursive(p, root, root).getPoint();
+    }
+
+    private Node nearestRecursive(Point2D p, Node champion, Node current) {
+        if (current == null) return champion;
+
+        double min = champion.getPoint().distanceSquaredTo(p);
+        if (current.getPoint().distanceSquaredTo(p) < min) {
+            champion = current;
+        }
+
+        if (current.getRect().distanceSquaredTo(p) > min) return champion;
+
+        if (current.getLB() != null && current.getLB().getRect().contains(p)) {
+            champion = nearestRecursive(p, champion, current.getLB());
+            champion = nearestRecursive(p, champion, current.getRT());
+        }
+        else {
+            champion = nearestRecursive(p, champion, current.getRT());
+            champion = nearestRecursive(p, champion, current.getLB());
+        }
+        return champion;
     }
 
     // unit testing of the methods (optional)
@@ -205,6 +224,12 @@ public class KdTree {
         kdt.insert(new Point2D(0.4, 0.7));
         kdt.insert(new Point2D(0.9, 0.6));
         kdt.draw();
+        StdDraw.setPenColor(Color.orange);
+        Point2D p = new Point2D(0.2, 0.2);
+        p.draw();
+        StdDraw.setPenRadius(0.005);
+        StdDraw.setPenColor(Color.CYAN);
+        kdt.nearest(new Point2D(0.2, 0.2)).draw();
         //
         // StdOut.println(kdt.size);
         // StdOut.println(kdt.contains(new Point2D(0.7, 0.2)));
@@ -219,11 +244,11 @@ public class KdTree {
 
 
     private static class Node {
-        private Point2D p;      // the point
+        private final Point2D p;      // the point
         private RectHV rect;    // the axis-aligned rectangle corresponding to this node
         private Node lb;        // the left/bottom subtree
         private Node rt;        // the right/top subtree
-        private boolean isXKey;
+        private final boolean isXKey;
 
         public Node(Point2D pt, boolean isXAsKey) {
             p = pt;
