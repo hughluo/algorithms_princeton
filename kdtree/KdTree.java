@@ -33,29 +33,33 @@ public class KdTree {
 
         if (size == 0) {
             root = new Node(p, true);
+            root.setRect(0.0, 0.0, 1.0, 1.0);
             size++;
         }
         else {
-            insertRecursive(root, p);
+            insertRecursive(root, p, 0.0, 0.0, 1.0, 1.0);
             size++;
         }
     }
 
-    private void insertRecursive(Node current, Point2D p) {
-        if (!current.isXKey) { // y as key
+    private void insertRecursive(Node current, Point2D p, double xmin, double ymin, double xmax,
+                                 double ymax) {
+        if (!current.isXKey()) { // y as key
             if (p.y() < current.py()) {
                 if (current.getLB() == null) {
                     Node n = new Node(p, true);
+                    n.setRect(xmin, ymin, xmax, current.py());
                     current.setLB(n);
                 }
-                else insertRecursive(current.getLB(), p);
+                else insertRecursive(current.getLB(), p, xmin, ymin, xmax, current.py());
             }
             else {
                 if (current.getRT() == null) {
                     Node n = new Node(p, true);
+                    n.setRect(xmin, current.py(), xmax, ymax);
                     current.setRT(n);
                 }
-                else insertRecursive(current.getRT(), p);
+                else insertRecursive(current.getRT(), p, xmin, current.py(), xmax, ymax);
             }
 
         }
@@ -63,16 +67,18 @@ public class KdTree {
             if (p.x() < current.px()) {
                 if (current.getLB() == null) {
                     Node n = new Node(p, false);
+                    n.setRect(xmin, ymin, current.px(), ymax);
                     current.setLB(n);
                 }
-                else insertRecursive(current.getLB(), p);
+                else insertRecursive(current.getLB(), p, xmin, ymin, current.px(), ymax);
             }
             else {
                 if (current.getRT() == null) {
                     Node n = new Node(p, false);
+                    n.setRect(current.px(), ymin, xmax, ymax);
                     current.setRT(n);
                 }
-                else insertRecursive(current.getRT(), p);
+                else insertRecursive(current.getRT(), p, current.px(), ymin, xmax, ymax);
             }
         }
     }
@@ -91,7 +97,7 @@ public class KdTree {
             return false;
         }
 
-        if (!current.isXKey) {
+        if (!current.isXKey()) {
             if (p.y() < current.py()) {
                 return searchRecursive(current.getLB(), p);
             }
@@ -132,6 +138,8 @@ public class KdTree {
     private void drawPointRecursive(Node current) {
         if (current == null) return;
         StdDraw.point(current.px(), current.py());
+        //  draw rect
+        current.getRect().draw();
         drawPointRecursive(current.getLB());
         drawPointRecursive(current.getRT());
     }
@@ -143,7 +151,7 @@ public class KdTree {
 
     private void drawLineRecursive(Node current, double xLo, double xHi, double yLo, double yHi) {
         if (current == null) return;
-        if (current.isXKey) {
+        if (current.isXKey()) {
             StdDraw.setPenColor(StdDraw.RED);
             StdDraw.line(current.px(), yLo, current.px(), yHi);
             drawLineRecursive(current.getLB(), xLo, current.px(), yLo, yHi);
@@ -161,9 +169,22 @@ public class KdTree {
     // all points that are inside the rectangle (or on the boundary)
     public Iterable<Point2D> range(RectHV rect) {
         if (rect == null) throw new IllegalArgumentException("RectHV to insert is null");
-        ArrayList<Point2D> result = new ArrayList<Point2D>(2);
-        return result;
+        return rangeRecursive(rect, root, null);
+    }
 
+    private ArrayList<Point2D> rangeRecursive(RectHV rect, Node current, ArrayList<Point2D> pts) {
+        if (current == null) return pts;
+        if (pts == null) pts = new ArrayList<Point2D>(2);
+        if (!rect.intersects(current.getRect())) {
+            return pts;
+        }
+
+        if (rect.contains(current.p)) {
+            pts.add(current.p);
+        }
+        rangeRecursive(rect, current.getLB(), pts);
+        rangeRecursive(rect, current.getRT(), pts);
+        return pts;
     }
 
     // a nearest neighbor in the set to point p; null if the set is empty
@@ -204,21 +225,24 @@ public class KdTree {
         private Node rt;        // the right/top subtree
         private boolean isXKey;
 
-        public Node(Point2D pt, Node leftBottom, Node rightTop, RectHV rectangle,
-                    boolean isXAsKey) {
-            p = pt;
-            rect = rectangle;
-            lb = leftBottom;
-            rt = rightTop;
-            isXKey = isXAsKey;
-        }
-
         public Node(Point2D pt, boolean isXAsKey) {
             p = pt;
             isXKey = isXAsKey;
         }
 
-        public boolean isVertical() {
+        public void setRect(double xmin, double ymin, double xmax, double ymax) {
+            rect = new RectHV(xmin, ymin, xmax, ymax);
+        }
+
+        public Point2D getPoint() {
+            return p;
+        }
+
+        public RectHV getRect() {
+            return rect;
+        }
+
+        public boolean isXKey() {
             return isXKey;
         }
 
